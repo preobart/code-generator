@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                column-gap: 40px;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .container {
+                width: 30%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            textarea,
+            select,
+            button {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            textarea {
+                flex-grow: 1;
+                resize: none;
+                padding: 0;
+            }
+            button {
+                border: none;
+                background-color: #007bff;
+                color: white;
+                cursor: pointer;
+            }
+            #barcodeCanvas {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                aspect-ratio: unset;
+            }
+        </style>
+        <title>QRCode</title>
+    </head>
+    <body>
+        <div class="container">
+            <textarea id="inputText" placeholder="Введите текст"></textarea>
+
+            <select id="barcodeType">
+                <option value="qr-code">QR-код</option>
+                <option value="ean13">Ean13</option>
+                <option value="ean8">Ean8</option>
+                <option value="code128">Code128</option>
+            </select>
+
+            <select id="errorCorrectionLevel">
+                <option value="L">L - 7% коррекции</option>
+                <option value="M">M - 15% коррекции</option>
+                <option value="Q">Q - 25% коррекции</option>
+                <option value="H">H - 30% коррекции</option>
+            </select>
+
+            <select id="barcodeSize">
+                <option value="large">Большой</option>
+                <option value="medium">Средний</option>
+                <option value="small">Маленький</option>
+            </select>
+
+            <select id="barcodeColor">
+                <option value="blue">Синий</option>
+                <option value="red">Красный</option>
+                <option value="black">Черный</option>
+            </select>
+
+            <button id="button">Генерировать</button>
+        </div>
+
+        <canvas id="barcodeCanvas" width="600" height="600"></canvas>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    </body>
+</html>
