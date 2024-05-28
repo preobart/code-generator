@@ -1,6 +1,6 @@
 import re
 import sys
-sys.path.append('/Users/admin/Workspace/code_generators/backend')
+sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 from tables.qrcode_matrix_templates import *
 from tables.qrcode_correction_levels import *

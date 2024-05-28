@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/Users/admin/Workspace/code_generators/backend')
+sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 import copy
 import math

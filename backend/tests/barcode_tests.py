@@ -1,7 +1,7 @@
 import unittest
 
 import sys
-sys.path.append('/Users/admin/Workspace/code_generators/backend')
+sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 from barcode.code128 import *
 from barcode.ean import *

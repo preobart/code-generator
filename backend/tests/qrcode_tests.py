@@ -1,7 +1,7 @@
 import unittest
 
 import sys
-sys.path.append('/Users/admin/Workspace/code_generators/backend')
+sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 from qrcode.data_encoding import *
 from qrcode.show_barcode import *
