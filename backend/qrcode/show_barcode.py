@@ -1,11 +1,14 @@
 import sys
+
 sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 import copy
 import math
-from tables.qrcode_matrix_templates import *
 from itertools import product
+
 from tables.qrcode_encoding_fields import *
+from tables.qrcode_matrix_templates import *
+
 
 class Qr_code():
     def __init__(self, level, version, finale_message):

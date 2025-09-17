@@ -1,19 +1,16 @@
-# Backend
+## Setup
 
-### Для установки пакетов необходимо:
-
-- Создать виртуальное окружение с помощью: 
-```
-python3 -m venv .venv
-```
-- Установить необходимые пакеты:
-```
-pip3 install -r requirements.txt
-```
-
-### Для запуска сервера необходимо:
-
-- Запустить flask-сервер с помощью:
-```
-flask --app server.py run
-```
+1. Create a Python virtual environment in the backend folder:
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+2. Install backend dependencies:
+    ```bash
+    pip install -r backend/requirements.txt
+    ```
+3. Run the Flask backend:
+    ```bash
+    flask --app backend/server.py run
+    ```
+4. Open the frontend in your browser

@@ -1,7 +1,9 @@
 import sys
+
 sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 from tables.ean_symbol_tables import *
+
 
 class EAN:
     def __init__(self, data):

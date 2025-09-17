@@ -1,88 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                column-gap: 40px;
-                padding: 20px;
-                box-sizing: border-box;
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; column-gap: 40px; padding: 20px; box-sizing: border-box; }
+        .container { width: 30%; display: flex; flex-direction: column; gap: 20px; }
+        textarea, select, button { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        textarea { flex-grow: 1; resize: none; padding: 0; }
+        button { border: none; background-color: #007bff; color: white; cursor: pointer; }
+        #barcodeCanvas { border: 1px solid #ccc; border-radius: 5px; aspect-ratio: unset; }
+    </style>
+    <title>QRCode</title>
+</head>
+<body>
+    <div class="container">
+        <textarea id="inputText" placeholder="Введите текст"></textarea>
+
+        <select id="barcodeType">
+            <option value="qr-code">QR-код</option>
+            <option value="ean13">Ean13</option>
+            <option value="ean8">Ean8</option>
+            <option value="code128">Code128</option>
+        </select>
+
+        <select id="errorCorrectionLevel">
+            <option value="L">L - 7% коррекции</option>
+            <option value="M">M - 15% коррекции</option>
+            <option value="Q">Q - 25% коррекции</option>
+            <option value="H">H - 30% коррекции</option>
+        </select>
+
+        <select id="barcodeSize">
+            <option value="large">Большой</option>
+            <option value="medium">Средний</option>
+            <option value="small">Маленький</option>
+        </select>
+
+        <select id="barcodeColor">
+            <option value="blue">Синий</option>
+            <option value="red">Красный</option>
+            <option value="black">Черный</option>
+        </select>
+
+        <button id="button">Генерировать</button>
+    </div>
+
+    <canvas id="barcodeCanvas" width="600" height="600"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const URL = 'http://127.0.0.1:5000';
+
+        const $button = document.querySelector('#button');
+        const $textarea = document.getElementById('inputText');
+        const $typeOption = document.getElementById('barcodeType');
+        const $errorCorrectionLevelOption = document.getElementById('errorCorrectionLevel');
+        const $sizeOption = document.getElementById('barcodeSize');
+        const $colorOption = document.getElementById('barcodeColor');
+
+        $button.onclick = async () => {
+            if (!$textarea.value) return;
+
+            if ($typeOption.value === 'qr-code') {
+                const body = { text: $textarea.value, level: $errorCorrectionLevelOption.value };
+                try {
+                    const response = await fetch(`${URL}/qrcode`, {
+                        method: 'POST',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    drawQRCode(data, $colorOption.value);
+                } catch {
+                    toastr.error("Что-то пошло не так! Проверьте данные!");
+                }
+            } else {
+                const body = { text: $textarea.value, type: $typeOption.value };
+                try {
+                    const response = await fetch(`${URL}/barcode`, {
+                        method: 'POST',
+                        body: JSON.stringify(body),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.text();
+                    drawBarcode(data, $colorOption.value);
+                } catch {
+                    toastr.error("Что-то пошло не так! Проверьте данные!");
+                }
             }
-            .container {
-                width: 30%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
+        };
+
+        $sizeOption.onchange = handleSize;
+        $typeOption.onchange = () => {
+            handleSize();
+            $errorCorrectionLevelOption.style.display = $typeOption.value === 'qr-code' ? 'block' : 'none';
+        };
+
+        function handleSize() {
+            const canvas = document.getElementById('barcodeCanvas');
+            if ($typeOption.value === 'qr-code') {
+                canvas.width = canvas.height = $sizeOption.value === 'small' ? 400 : $sizeOption.value === 'medium' ? 500 : 600;
+            } else {
+                canvas.width = $sizeOption.value === 'small' ? 400 : $sizeOption.value === 'medium' ? 500 : 600;
+                canvas.height = $sizeOption.value === 'small' ? 200 : $sizeOption.value === 'medium' ? 250 : 300;
             }
-            textarea,
-            select,
-            button {
-                width: 100%;
-                padding: 10px;
-                font-size: 16px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
+        }
+
+        function drawQRCode(matrix, color) {
+            const canvas = document.getElementById('barcodeCanvas');
+            const ctx = canvas.getContext('2d');
+            const canvasSize = Math.min(canvas.width, canvas.height);
+            const cellSize = Math.floor(canvasSize / matrix.length);
+            canvas.width = canvas.height = canvasSize;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const offsetX = Math.floor((canvas.width - cellSize * matrix.length) / 2);
+            const offsetY = Math.floor((canvas.height - cellSize * matrix.length) / 2);
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    ctx.fillStyle = matrix[row][col] ? color : '#ffffff';
+                    ctx.fillRect(offsetX + col * cellSize, offsetY + row * cellSize, cellSize, cellSize);
+                }
             }
-            textarea {
-                flex-grow: 1;
-                resize: none;
-                padding: 0;
+        }
+
+        function drawBarcode(codeString, color) {
+            const canvas = document.getElementById('barcodeCanvas');
+            const ctx = canvas.getContext('2d');
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const barWidth = canvasWidth / codeString.length;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < codeString.length; i++) {
+                ctx.fillStyle = codeString[i] === '1' ? color : '#ffffff';
+                ctx.fillRect(barWidth * i, 0, Math.ceil(barWidth), canvasHeight);
             }
-            button {
-                border: none;
-                background-color: #007bff;
-                color: white;
-                cursor: pointer;
-            }
-            #barcodeCanvas {
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                aspect-ratio: unset;
-            }
-        </style>
-        <title>QRCode</title>
-    </head>
-    <body>
-        <div class="container">
-            <textarea id="inputText" placeholder="Введите текст"></textarea>
+        }
 
-            <select id="barcodeType">
-                <option value="qr-code">QR-код</option>
-                <option value="ean13">Ean13</option>
-                <option value="ean8">Ean8</option>
-                <option value="code128">Code128</option>
-            </select>
-
-            <select id="errorCorrectionLevel">
-                <option value="L">L - 7% коррекции</option>
-                <option value="M">M - 15% коррекции</option>
-                <option value="Q">Q - 25% коррекции</option>
-                <option value="H">H - 30% коррекции</option>
-            </select>
-
-            <select id="barcodeSize">
-                <option value="large">Большой</option>
-                <option value="medium">Средний</option>
-                <option value="small">Маленький</option>
-            </select>
-
-            <select id="barcodeColor">
-                <option value="blue">Синий</option>
-                <option value="red">Красный</option>
-                <option value="black">Черный</option>
-            </select>
-
-            <button id="button">Генерировать</button>
-        </div>
-
-        <canvas id="barcodeCanvas" width="600" height="600"></canvas>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    </body>
+        handleSize(); // начальная установка размеров
+    });
+    </script>
+</body>
 </html>

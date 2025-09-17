@@ -1,11 +1,11 @@
 import re
 import sys
+
 sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
-from tables.qrcode_matrix_templates import *
 from tables.qrcode_correction_levels import *
-
 from tables.qrcode_encoding_fields import *
+from tables.qrcode_matrix_templates import *
 
 '''Выбор способа шифрования'''
 

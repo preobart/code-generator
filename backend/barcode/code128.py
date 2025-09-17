@@ -1,7 +1,9 @@
 import sys
+
 sys.path.append('/Users/admin/Workspace/code_generator/backend')
 
 from tables.code128_symbol_table import *
+
 
 class CODE128:
     def __init__(self, data):
